@@ -9,6 +9,15 @@ dist/
 build/
 out/
 
+# Maven / Java
+target/
+*.class
+*.jar
+*.war
+*.ear
+HELP.md
+.mvn/wrapper/maven-wrapper.jar
+
 # Environment variables
 .env
 .env.local
