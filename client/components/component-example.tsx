@@ -140,12 +140,8 @@ function CardExample() {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel variant="outline" size="default">
-                  Don&apos;t allow
-                </AlertDialogCancel>
-                <AlertDialogAction variant="default" size="default">
-                  Allow
-                </AlertDialogAction>
+                <AlertDialogCancel>Don&apos;t allow</AlertDialogCancel>
+                <AlertDialogAction>Allow</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
