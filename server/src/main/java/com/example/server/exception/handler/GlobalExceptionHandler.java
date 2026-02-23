@@ -13,8 +13,10 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.server.ResponseStatusException;
 
-import javax.xml.bind.ValidationException;
+import jakarta.validation.ValidationException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,5 +82,29 @@ public class GlobalExceptionHandler {
         response.put("message", "Illegal Argument: check your request");
         log.error("Illegal argument: {}", e.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<?> handleResponseStatusException(ResponseStatusException e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", e.getReason() != null ? e.getReason() : e.getMessage());
+        log.error("Response status error [{}]: {}", e.getStatusCode(), e.getReason());
+        return new ResponseEntity<>(response, e.getStatusCode());
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<?> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "File is too large. Maximum allowed size is 50MB.");
+        log.error("File upload size exceeded: {}", e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.PAYLOAD_TOO_LARGE);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleGenericException(Exception e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Internal server error: " + e.getMessage());
+        log.error("Unhandled exception: {}", e.getMessage(), e);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 } 

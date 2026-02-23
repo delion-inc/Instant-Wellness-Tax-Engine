@@ -1,17 +1,32 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/hackathon_2026_kiev
+    url: jdbc:postgresql://localhost:5432/hackathon_2026_kiev?reWriteBatchedInserts=true
     username: postgres
     password: 12345
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
   jpa:
     hibernate:
       ddl-auto: none
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 500
+        order_inserts: true
+        order_updates: true
   application:
     name: "server"
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 app:
   base-url: http://localhost:8080
