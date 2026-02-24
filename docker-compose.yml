@@ -8,3 +8,18 @@ services:
     environment:
       - NODE_ENV=production
     restart: unless-stopped
+
+  backend:
+    container_name: backend
+    build: ./server
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: ${DB_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ACCESS_TOKEN_EXPIRATION: ${JWT_ACCESS_TOKEN_EXPIRATION:-3600000}
+      JWT_REFRESH_TOKEN_EXPIRATION: ${JWT_REFRESH_TOKEN_EXPIRATION:-604800000}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8080}
+    restart: unless-stopped
