@@ -21,7 +21,7 @@ public class CookieUtil {
 
     private void setCookie(HttpServletResponse response, String name, String value, long maxAge) {
         response.setHeader("Set-Cookie",
-                String.format("%s=%s; Path=%s; HttpOnly; SameSite=%s; Max-age=%d",
+                String.format("%s=%s; Path=%s; HttpOnly; Secure; SameSite=%s; Max-age=%d",
                         name, value, COOKIE_PATH, SAME_SITE, maxAge));
     }
 } 
