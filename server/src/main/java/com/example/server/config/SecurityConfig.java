@@ -54,6 +54,7 @@ public class SecurityConfig {
             "http://localhost:5173",
             "http://localhost:3000",
             "http://localhost:4173",
+            "https://delion.digital",
             "http://ec2-18-199-178-0.eu-central-1.compute.amazonaws.com:3000"
     };
 
