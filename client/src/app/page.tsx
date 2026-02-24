@@ -1,5 +1,10 @@
-import { LandingPage } from "@/modules/welcome/landing-page";
+import { LandingPage } from "@/modules/auth";
+import { GuestGuard } from "@/shared/components/guest-guard";
 
 export default function Page() {
-return <LandingPage />;
+  return (
+    <GuestGuard>
+      <LandingPage />
+    </GuestGuard>
+  );
 }
