@@ -7,6 +7,9 @@ export const API_ENDPOINTS = {
     refresh: "/auth/refresh",
     logout: "/auth/logout",
   },
+  users: {
+    current: "/users/current",
+  },
 } as const;
 
 export const AUTH_ENDPOINTS = [
