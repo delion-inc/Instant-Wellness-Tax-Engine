@@ -1,4 +1,4 @@
-type AuthMode = "login" | "signup";
+import type { AuthMode } from "../types/auth.types";
 
 interface AuthHeaderProps {
   mode: AuthMode;
