@@ -4,6 +4,7 @@ import { LightRays } from "@/shared/components/ui/light-rays";
 import { AnimatedGridPattern } from "@/shared/components/ui/animated-grid-pattern";
 import { AnimatedThemeToggler } from "@/shared/components/ui/animated-theme-toggler";
 import { cn } from "@/shared/lib/utils";
+import { AppLogo } from "@/shared/components/app-logo";
 import { AuthForm } from "./auth-form";
 import { FeatureList } from "./feature-list";
 
@@ -35,14 +36,7 @@ export function LandingPage() {
           />
 
           <div className="relative z-10">
-            <div className="mb-6 flex items-center gap-2.5">
-              <div className="flex size-9 items-center justify-center rounded-xl bg-primary">
-                <span className="text-lg font-bold text-primary-foreground">IW</span>
-              </div>
-              <span className="text-lg font-semibold tracking-tight text-foreground">
-                Instant Wellness
-              </span>
-            </div>
+            <AppLogo className="mb-6" />
 
             <h1 className="max-w-sm text-3xl font-bold leading-[1.15] tracking-tight text-foreground xl:text-4xl">
               Tax Compliance <span className="text-primary">at High Speed</span>
