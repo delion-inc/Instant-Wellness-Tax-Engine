@@ -22,6 +22,8 @@ export const NAV_ITEMS: NavItem[] = [
 
 const ROUTE_TITLES: Record<string, string> = {
   "/dashboard/orders/new": "Add order",
+  "/dashboard/orders/new/csv": "Import orders (CSV)",
+  "/dashboard/orders/new/manual": "Add order manually",
 }
 
 export function getNavTitleByPathname(pathname: string): string {

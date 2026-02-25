@@ -10,6 +10,10 @@ export const API_ENDPOINTS = {
   users: {
     current: "/users/current",
   },
+  orders: {
+    create: "/orders",
+    import: "/orders/import",
+  },
 } as const;
 
 export const AUTH_ENDPOINTS = [

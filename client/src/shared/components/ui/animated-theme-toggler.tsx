@@ -1,10 +1,11 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Moon, Sun } from "lucide-react"
 import { flushSync } from "react-dom"
 
 import { cn } from "@/shared/lib/utils"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Moon02Icon, Sun02Icon } from "@hugeicons/core-free-icons"
 
 interface AnimatedThemeTogglerProps extends React.ComponentPropsWithoutRef<"button"> {
   duration?: number
@@ -77,7 +78,7 @@ export const AnimatedThemeToggler = ({
       className={cn(className)}
       {...props}
     >
-      {isDark ? <Sun size={20} /> : <Moon size={20} />}
+      {isDark ? <HugeiconsIcon icon={Sun02Icon} size={20} /> : <HugeiconsIcon icon={Moon02Icon} size={20} />}
       <span className="sr-only">Toggle theme</span>
     </button>
   )
