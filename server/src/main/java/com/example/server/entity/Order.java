@@ -7,10 +7,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
+
+import com.example.server.dto.order.SpecialRateEntry;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 
 @Data
 @Entity
@@ -58,4 +64,30 @@ public class Order {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    @Column(name = "composite_tax_rate", precision = 8, scale = 6)
+    private BigDecimal compositeTaxRate;
+
+    @Column(name = "tax_amount", precision = 14, scale = 4)
+    private BigDecimal taxAmount;
+
+    @Column(name = "total_amount", precision = 14, scale = 4)
+    private BigDecimal totalAmount;
+
+    @Column(name = "state_rate", precision = 8, scale = 6)
+    private BigDecimal stateRate;
+
+    @Column(name = "county_rate", precision = 8, scale = 6)
+    private BigDecimal countyRate;
+
+    @Column(name = "city_rate", precision = 8, scale = 6)
+    private BigDecimal cityRate;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "special_rates", columnDefinition = "jsonb")
+    private List<SpecialRateEntry> specialRates;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "jurisdictions", columnDefinition = "jsonb")
+    private Map<String, Object> jurisdictions;
 }
