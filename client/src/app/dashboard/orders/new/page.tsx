@@ -1,6 +1,5 @@
+import { NewOrderEntry } from "@/modules/orders";
+
 export default function NewOrderPage() {
-   return (
-     <div>NewOrderPage</div>
-   )
- }
- 
+  return <NewOrderEntry />;
+}
