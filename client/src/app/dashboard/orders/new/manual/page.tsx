@@ -1,3 +1,5 @@
-export default function ManualOrderPage() {
-  return <div>Manual Order</div>;
+import { ManualOrderPage } from "@/modules/orders";
+
+export default function ManualOrderRoute() {
+  return <ManualOrderPage />;
 }
