@@ -12,8 +12,8 @@ export function LandingPage() {
   return (
     <div className="relative flex h-dvh w-full items-center justify-center overflow-hidden p-4 sm:p-6 lg:p-8">
       <LightRays
-        count={10}
-        color="oklch(0.586 0.253 17.585 / 0.15)"
+        count={8}
+        color="oklch(0.5393 0.2713 286.7462 / 0.25)"
         blur={80}
         speed={16}
         length="120vh"

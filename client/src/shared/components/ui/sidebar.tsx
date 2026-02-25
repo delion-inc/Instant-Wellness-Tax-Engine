@@ -429,7 +429,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<"ul">) {
     <ul
       data-slot="sidebar-menu"
       data-sidebar="menu"
-      className={cn("gap-0 flex w-full min-w-0 flex-col", className)}
+      className={cn("gap-0 flex w-full min-w-0 flex-col space-y-2", className)}
       {...props}
     />
   );
