@@ -1,3 +1,5 @@
+import { CsvImportPage } from "@/modules/orders";
+
 export default function ImportCsvPage() {
-  return <div>Import CSV</div>;
+  return <CsvImportPage />;
 }

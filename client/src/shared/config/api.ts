@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
   },
   orders: {
     create: "/orders",
+    import: "/orders/import",
   },
 } as const;
 

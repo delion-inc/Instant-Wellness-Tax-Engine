@@ -37,3 +37,17 @@ export interface OrderResponse {
   specialRates: SpecialRate[];
   jurisdictions: OrderJurisdictions;
 }
+
+export type DuplicateHandling = "skip" | "overwrite" | "fail";
+export type OutOfScopeHandling = "mark" | "fail";
+
+export interface ImportCsvOptions {
+  duplicateHandling: DuplicateHandling;
+  outOfScopeHandling: OutOfScopeHandling;
+}
+
+export interface ImportCsvResponse {
+  imported: number;
+  calculated: number;
+  message: string;
+}
