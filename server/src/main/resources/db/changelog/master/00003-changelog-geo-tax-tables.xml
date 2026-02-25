@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="enable-postgis" author="Roman">
+        <sql>CREATE EXTENSION IF NOT EXISTS postgis;</sql>
+    </changeSet>
+
+    <changeSet id="create-geo-jurisdictions" author="Roman">
+        <createTable tableName="geo_jurisdictions">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fips_code" type="VARCHAR(10)"/>
+            <column name="state_code" type="VARCHAR(2)" defaultValue="NY">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <sql>ALTER TABLE geo_jurisdictions ADD COLUMN geom GEOMETRY(MultiPolygon, 4326);</sql>
+        <sql>CREATE INDEX idx_geo_jurisdictions_geom ON geo_jurisdictions USING GIST(geom);</sql>
+        <sql>CREATE INDEX idx_geo_jurisdictions_type ON geo_jurisdictions(type);</sql>
+        <sql>CREATE INDEX idx_geo_jurisdictions_fips ON geo_jurisdictions(fips_code);</sql>
+    </changeSet>
+
+    <changeSet id="create-tax-rates" author="Roman">
+        <createTable tableName="tax_rates">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="jurisdiction_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_tax_rates_jurisdiction"
+                             references="geo_jurisdictions(id)"/>
+            </column>
+            <column name="rate_type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rate" type="DECIMAL(8,6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="valid_from" type="DATE"/>
+            <column name="valid_to" type="DATE"/>
+        </createTable>
+
+        <createIndex tableName="tax_rates" indexName="idx_tax_rates_jurisdiction">
+            <column name="jurisdiction_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

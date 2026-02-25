@@ -9,9 +9,11 @@ import com.example.server.entity.Order;
 import com.example.server.enums.OrderStatus;
 import com.example.server.mapper.OrderMapper;
 import com.example.server.repository.OrderRepository;
-import com.example.server.service.OrderService;
-import com.example.server.util.OrderCsvParser;
 import com.example.server.repository.native_query.OrderNativeRepository;
+import com.example.server.service.OrderService;
+import com.example.server.service.TaxCalculationService;
+import com.example.server.util.OrderCsvParser;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,11 +31,13 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final OrderCsvParser csvParser;
     private final OrderNativeRepository orderNativeRepository;
+    private final TaxCalculationService taxCalculationService;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional
     public OrderResponse createOrder(OrderRequest request, Long userId) {
-        Order saved = orderRepository.save(Order.builder()
+        Order saved = orderRepository.saveAndFlush(Order.builder()
                 .externalId(request.getExternalId())
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
@@ -43,6 +47,10 @@ public class OrderServiceImpl implements OrderService {
                 .csvImported(false)
                 .createdBy(userId)
                 .build());
+
+        taxCalculationService.calculateSingleOrder(saved.getId());
+
+        entityManager.refresh(saved);
         return orderMapper.toResponse(saved);
     }
 
@@ -71,10 +79,12 @@ public class OrderServiceImpl implements OrderService {
         }
 
         int imported = orderNativeRepository.batchInsert(rows, userId);
+        int calculated = taxCalculationService.calculatePendingOrders();
 
         return ImportResultResponse.builder()
                 .imported(imported)
-                .message("Successfully imported " + imported + " orders")
+                .calculated(calculated)
+                .message("Imported " + imported + " orders, calculated taxes for " + calculated)
                 .build();
     }
 }
