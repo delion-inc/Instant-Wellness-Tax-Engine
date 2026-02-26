@@ -3,20 +3,27 @@ package com.example.server.service.impl;
 import com.example.server.dto.common.PageResponse;
 import com.example.server.dto.order.ImportResultResponse;
 import com.example.server.dto.order.OrderCsvRow;
+import com.example.server.dto.order.OrderFilterParams;
+import com.example.server.dto.order.OrderFilterRequest;
 import com.example.server.dto.order.OrderRequest;
 import com.example.server.dto.order.OrderResponse;
 import com.example.server.entity.Order;
 import com.example.server.enums.OrderStatus;
 import com.example.server.mapper.OrderMapper;
 import com.example.server.repository.OrderRepository;
+import com.example.server.repository.OrderSpecification;
 import com.example.server.repository.native_query.OrderNativeRepository;
 import com.example.server.service.OrderService;
 import com.example.server.service.TaxCalculationService;
 import com.example.server.util.OrderCsvParser;
+import com.example.server.util.OrderParamUtils;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,13 +63,60 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<OrderResponse> getOrders(Pageable pageable) {
-        Page<Order> page = orderRepository.findAll(pageable);
+    public PageResponse<OrderResponse> getOrders(OrderFilterRequest request, Pageable pageable) {
+        // ── validation ──────────────────────────────────────────────────────
+        OrderParamUtils.validatePageable(pageable);
+
+        Long tsFrom = OrderParamUtils.parseTimestamp(request.getTimestampFrom(), "timestampFrom");
+        Long tsTo   = OrderParamUtils.parseTimestamp(request.getTimestampTo(),   "timestampTo");
+
+        OrderParamUtils.validateTimestampRange(tsFrom, tsTo);
+        OrderParamUtils.validateRange(request.getTaxAmountMin(),        request.getTaxAmountMax(),
+                                     "taxAmountMin",        "taxAmountMax");
+        OrderParamUtils.validateRange(request.getCompositeTaxRateMin(), request.getCompositeTaxRateMax(),
+                                     "compositeTaxRateMin", "compositeTaxRateMax");
+
+        OrderFilterParams filters = OrderFilterParams.builder()
+                .csvImported(request.getCsvImported())
+                .status(OrderParamUtils.parseStatus(request.getStatus()))
+                .timestampFrom(tsFrom)
+                .timestampTo(tsTo)
+                .taxAmountMin(request.getTaxAmountMin())
+                .taxAmountMax(request.getTaxAmountMax())
+                .compositeTaxRateMin(request.getCompositeTaxRateMin())
+                .compositeTaxRateMax(request.getCompositeTaxRateMax())
+                .jurState(request.getJurState())
+                .jurCounty(request.getJurCounty())
+                .jurCity(request.getJurCity())
+                .jurSpecial(request.getJurSpecial())
+                .hasSpecial(request.getHasSpecial())
+                .build();
+
+        Sort sort = pageable.getSort();
+        if (sort.getOrderFor("id") == null) {
+            sort = sort.and(Sort.by(Sort.Direction.DESC, "id"));
+        }
+        Pageable zeroBasedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                sort);
+
+        Specification<Order> spec = OrderSpecification.from(filters);
+        Page<Order> page = orderRepository.findAll(spec, zeroBasedPageable);
+
+        List<String> sortStrings = pageable.getSort().stream()
+                .map(o -> o.getProperty() + "," + o.getDirection().name().toLowerCase())
+                .toList();
+
         return new PageResponse<>(
                 page.getContent().stream().map(orderMapper::toResponse).toList(),
-                (int) page.getTotalElements(),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
                 page.getTotalPages(),
-                page.getNumber() + 1
+                page.hasNext(),
+                page.hasPrevious(),
+                sortStrings
         );
     }
 

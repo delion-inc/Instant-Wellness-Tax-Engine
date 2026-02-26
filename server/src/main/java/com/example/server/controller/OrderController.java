@@ -2,6 +2,7 @@ package com.example.server.controller;
 
 import com.example.server.dto.common.PageResponse;
 import com.example.server.dto.order.ImportResultResponse;
+import com.example.server.dto.order.OrderFilterRequest;
 import com.example.server.dto.order.OrderRequest;
 import com.example.server.dto.order.OrderResponse;
 import com.example.server.entity.User;
@@ -10,8 +11,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -34,13 +36,12 @@ public class OrderController {
         return orderService.createOrder(request, currentUser.getId());
     }
 
-    @Operation(summary = "List orders — page is 1-based, e.g. ?page=1&pageSize=10")
+    @Operation(summary = "List orders — page is 0-based. Params: page, pageSize, sort, + filter params.")
     @GetMapping
     public PageResponse<OrderResponse> getOrders(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int pageSize) {
-        PageRequest pageable = PageRequest.of(Math.max(page - 1, 0), pageSize, Sort.by("id").descending());
-        return orderService.getOrders(pageable);
+            @PageableDefault(size = 25, sort = {"createdAt", "id"}, direction = Sort.Direction.DESC) Pageable pageable,
+            @ModelAttribute OrderFilterRequest request) {
+        return orderService.getOrders(request, pageable);
     }
 
     @Operation(summary = "Import orders from CSV",
