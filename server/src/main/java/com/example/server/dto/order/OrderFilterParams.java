@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class OrderFilterParams {
 
+    private Long searchId;
+
     private Boolean csvImported;
     private OrderStatus status;
 

@@ -17,6 +17,10 @@ public class OrderSpecification {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if (f.getSearchId() != null) {
+                predicates.add(cb.equal(root.get("id"), f.getSearchId()));
+            }
+
             if (f.getCsvImported() != null) {
                 predicates.add(cb.equal(root.get("csvImported"), f.getCsvImported()));
             }
@@ -49,35 +53,30 @@ public class OrderSpecification {
                 predicates.add(cb.lessThanOrEqualTo(root.get("compositeTaxRate"), f.getCompositeTaxRateMax()));
             }
 
-            // --- Jurisdiction filters (JSONB) ---
-
             if (f.getJurState() != null) {
                 Expression<String> expr = cb.function("jsonb_extract_path_text", String.class,
                         root.get("jurisdictions"), cb.literal("state"));
-                predicates.add(cb.equal(cb.lower(expr), f.getJurState().strip().toLowerCase()));
+                predicates.add(cb.like(cb.lower(expr), "%" + f.getJurState().strip().toLowerCase() + "%"));
             }
 
             if (f.getJurCounty() != null) {
                 Expression<String> expr = cb.function("jsonb_extract_path_text", String.class,
                         root.get("jurisdictions"), cb.literal("county"));
-                predicates.add(cb.equal(cb.lower(expr), f.getJurCounty().strip().toLowerCase()));
+                predicates.add(cb.like(cb.lower(expr), "%" + f.getJurCounty().strip().toLowerCase() + "%"));
             }
 
             if (f.getJurCity() != null) {
                 Expression<String> expr = cb.function("jsonb_extract_path_text", String.class,
                         root.get("jurisdictions"), cb.literal("city"));
-                predicates.add(cb.equal(cb.lower(expr), f.getJurCity().strip().toLowerCase()));
+                predicates.add(cb.like(cb.lower(expr), "%" + f.getJurCity().strip().toLowerCase() + "%"));
             }
 
-            // jurSpecial: check that the JSON array text contains the quoted value
-            // e.g. '["MCTD","Other"]' LIKE '%"MCTD"%'
             if (f.getJurSpecial() != null) {
                 Expression<String> expr = cb.function("jsonb_extract_path_text", String.class,
                         root.get("jurisdictions"), cb.literal("special"));
                 predicates.add(cb.like(expr, "%\"" + f.getJurSpecial().strip() + "\"%"));
             }
 
-            // hasSpecial: special array is non-null and not empty
             if (f.getHasSpecial() != null) {
                 Expression<String> specialText = cb.function("jsonb_extract_path_text", String.class,
                         root.get("jurisdictions"), cb.literal("special"));
