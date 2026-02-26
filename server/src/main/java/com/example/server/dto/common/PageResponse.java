@@ -11,7 +11,11 @@ import java.util.List;
 @AllArgsConstructor
 public class PageResponse<T> {
     private List<T> content;
-    private int total;
+    private int page;
+    private int pageSize;
+    private long totalElements;
     private int totalPages;
-    private int pageNumber;
-} 
+    private boolean hasNext;
+    private boolean hasPrevious;
+    private List<String> sort;
+}
