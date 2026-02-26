@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
     current: "/users/current",
   },
   orders: {
+    list: "/orders",
     create: "/orders",
     import: "/orders/import",
   },

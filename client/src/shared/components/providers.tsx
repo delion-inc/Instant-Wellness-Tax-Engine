@@ -2,6 +2,7 @@
 
 import { createContext, useSyncExternalStore, useState, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 export const ClientMountContext = createContext(false);
 
@@ -33,8 +34,10 @@ export const Providers = ({ children }: ProvidersProps) => {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ClientMountContext value={isMounted}>{children}</ClientMountContext>
-    </QueryClientProvider>
+    <NuqsAdapter>
+      <QueryClientProvider client={queryClient}>
+        <ClientMountContext value={isMounted}>{children}</ClientMountContext>
+      </QueryClientProvider>
+    </NuqsAdapter>
   );
 };
