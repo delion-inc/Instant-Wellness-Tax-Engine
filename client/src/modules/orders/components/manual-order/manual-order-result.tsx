@@ -10,12 +10,16 @@ const STATUS_LABELS: Record<OrderResponse["status"], string> = {
   CALCULATED: "Calculated",
   OUT_OF_SCOPE: "Out of scope",
   FAILED_VALIDATION: "Validation failed",
+  ADDED: "Added",
+  PROCESSING: "Processing",
 };
 
 const STATUS_VARIANTS: Record<OrderResponse["status"], "default" | "secondary" | "destructive"> = {
   CALCULATED: "default",
   OUT_OF_SCOPE: "secondary",
   FAILED_VALIDATION: "destructive",
+  ADDED: "secondary",
+  PROCESSING: "default",
 };
 
 function formatCurrency(value: number): string {

@@ -1,4 +1,4 @@
-export const API_BASE_URL = "https://delion.digital/api/v1";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080/api/v1";
 
 export const API_ENDPOINTS = {
   auth: {
@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
     current: "/users/current",
   },
   orders: {
+    list: "/orders",
     create: "/orders",
     import: "/orders/import",
   },
