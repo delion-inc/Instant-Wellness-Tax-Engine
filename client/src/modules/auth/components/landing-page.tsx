@@ -5,19 +5,24 @@ import { AnimatedGridPattern } from "@/shared/components/ui/animated-grid-patter
 import { AnimatedThemeToggler } from "@/shared/components/ui/animated-theme-toggler";
 import { cn } from "@/shared/lib/utils";
 import { AppLogo } from "@/shared/components/app-logo";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { AuthForm } from "./auth-form";
 import { FeatureList } from "./feature-list";
 
 export function LandingPage() {
+  const isMobile = useIsMobile();
+
   return (
     <div className="relative flex h-dvh w-full items-center justify-center overflow-hidden p-4 sm:p-6 lg:p-8">
-      <LightRays
-        count={8}
-        color="oklch(0.5393 0.2713 286.7462 / 0.25)"
-        blur={80}
-        speed={16}
-        length="120vh"
-      />
+      {!isMobile && (
+        <LightRays
+          count={3}
+          color="oklch(0.5393 0.2713 286.7462 / 0.25)"
+          blur={40}
+          speed={16}
+          length="100vh"
+        />
+      )}
 
       <AnimatedThemeToggler className="absolute right-4 top-4 z-50 rounded-xl border border-border bg-background/80 p-2 text-foreground backdrop-blur-sm transition-colors hover:bg-accent" />
 
