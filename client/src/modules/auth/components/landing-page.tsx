@@ -13,7 +13,12 @@ export function LandingPage() {
   const isMobile = useIsMobile();
 
   return (
-    <div className="relative flex h-dvh w-full items-center justify-center overflow-hidden p-4 sm:p-6 lg:p-8">
+    <div
+      className={cn(
+        "relative flex h-dvh w-full items-center justify-center overflow-hidden p-4 sm:p-6 lg:p-8",
+        isMobile ? "bg-primary/10" : "",
+      )}
+    >
       {!isMobile && (
         <LightRays
           count={3}

@@ -5,11 +5,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Search01Icon,
-  Cancel01Icon,
-  FilterIcon,
-} from "@hugeicons/core-free-icons";
+import { Search01Icon, Cancel01Icon, FilterIcon } from "@hugeicons/core-free-icons";
 import { OrdersFilterSheet } from "./orders-filter-sheet";
 import type { useOrderFilters } from "../../hooks/use-order-filters";
 
@@ -24,9 +20,7 @@ interface OrdersFilterBarProps {
   filters: ReturnType<typeof useOrderFilters>;
 }
 
-export function OrdersFilterBar({
-  filters,
-}: OrdersFilterBarProps) {
+export function OrdersFilterBar({ filters }: OrdersFilterBarProps) {
   const { params, setFilter, resetFilters, hasActiveFilters } = filters;
 
   const [searchValue, setSearchValue] = useState(params.search ?? "");
@@ -84,18 +78,12 @@ export function OrdersFilterBar({
 
           <Tabs
             value={params.status ?? "ALL"}
-            onValueChange={(val) =>
-              setFilter("status", val === "ALL" ? null : val)
-            }
+            onValueChange={(val) => setFilter("status", val === "ALL" ? null : val)}
             className="gap-0"
           >
             <TabsList className="h-8">
               {STATUS_TABS.map((tab) => (
-                <TabsTrigger
-                  key={tab.value}
-                  value={tab.value}
-                  className="text-xs px-2.5"
-                >
+                <TabsTrigger key={tab.value} value={tab.value} className="text-xs px-2.5">
                   {tab.label}
                 </TabsTrigger>
               ))}
@@ -118,7 +106,7 @@ export function OrdersFilterBar({
 
           <Button onClick={() => setSheetOpen(true)}>
             <HugeiconsIcon icon={FilterIcon} strokeWidth={2} />
-            More Filters
+            <p className="max-sm:text-xs">More Filters</p>
             {advancedFilterCount > 0 && (
               <span className="bg-primary-foreground text-primary ml-0.5 flex size-5 items-center justify-center rounded-full text-[11px] font-semibold">
                 {advancedFilterCount}
@@ -128,9 +116,7 @@ export function OrdersFilterBar({
         </div>
       </div>
 
-      {sheetOpen && (
-        <OrdersFilterSheet filters={filters} onOpenChange={setSheetOpen} />
-      )}
+      {sheetOpen && <OrdersFilterSheet filters={filters} onOpenChange={setSheetOpen} />}
     </>
   );
 }
