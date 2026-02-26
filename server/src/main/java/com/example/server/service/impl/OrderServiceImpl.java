@@ -76,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
                                      "compositeTaxRateMin", "compositeTaxRateMax");
 
         OrderFilterParams filters = OrderFilterParams.builder()
-                .searchId(OrderParamUtils.parseSearchId(request.getSearch()))
+                .searchId(OrderParamUtils.parseSearchId(request.getId()))
                 .csvImported(request.getCsvImported())
                 .status(OrderParamUtils.parseStatus(request.getStatus()))
                 .timestampFrom(tsFrom)

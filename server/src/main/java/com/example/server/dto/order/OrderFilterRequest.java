@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class OrderFilterRequest {
 
-    private String search;
+    private String id;
 
     private Boolean csvImported;
     private String status;
