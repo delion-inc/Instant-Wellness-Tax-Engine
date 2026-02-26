@@ -29,6 +29,15 @@ public final class OrderParamUtils {
         }
     }
 
+    public static Long parseSearchId(String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            return Long.parseLong(value.strip());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     public static OrderStatus parseStatus(String value) {
         if (value == null) return null;
         try {
@@ -38,10 +47,6 @@ public final class OrderParamUtils {
         }
     }
 
-    /**
-     * Parses an ISO-8601 datetime string to epoch millis.
-     * Supports both offset-aware (2026-02-01T00:00:00Z) and instant formats.
-     */
     public static Long parseTimestamp(String value, String paramName) {
         if (value == null || value.isBlank()) return null;
         String s = value.strip();

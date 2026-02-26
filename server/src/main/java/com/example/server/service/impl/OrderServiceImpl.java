@@ -64,7 +64,6 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public PageResponse<OrderResponse> getOrders(OrderFilterRequest request, Pageable pageable) {
-        // ── validation ──────────────────────────────────────────────────────
         OrderParamUtils.validatePageable(pageable);
 
         Long tsFrom = OrderParamUtils.parseTimestamp(request.getTimestampFrom(), "timestampFrom");
@@ -77,6 +76,7 @@ public class OrderServiceImpl implements OrderService {
                                      "compositeTaxRateMin", "compositeTaxRateMax");
 
         OrderFilterParams filters = OrderFilterParams.builder()
+                .searchId(OrderParamUtils.parseSearchId(request.getSearch()))
                 .csvImported(request.getCsvImported())
                 .status(OrderParamUtils.parseStatus(request.getStatus()))
                 .timestampFrom(tsFrom)
@@ -96,13 +96,10 @@ public class OrderServiceImpl implements OrderService {
         if (sort.getOrderFor("id") == null) {
             sort = sort.and(Sort.by(Sort.Direction.DESC, "id"));
         }
-        Pageable zeroBasedPageable = PageRequest.of(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                sort);
+        Pageable stablePageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
         Specification<Order> spec = OrderSpecification.from(filters);
-        Page<Order> page = orderRepository.findAll(spec, zeroBasedPageable);
+        Page<Order> page = orderRepository.findAll(spec, stablePageable);
 
         List<String> sortStrings = pageable.getSort().stream()
                 .map(o -> o.getProperty() + "," + o.getDirection().name().toLowerCase())

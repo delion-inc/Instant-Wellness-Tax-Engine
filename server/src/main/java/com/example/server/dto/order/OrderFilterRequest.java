@@ -9,8 +9,9 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class OrderFilterRequest {
 
-    private Boolean csvImported;
+    private String search;
 
+    private Boolean csvImported;
     private String status;
 
     private String timestampFrom;
