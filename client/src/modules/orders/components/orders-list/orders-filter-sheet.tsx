@@ -16,11 +16,7 @@ import { Switch } from "@/shared/components/ui/switch";
 import { Slider } from "@/shared/components/ui/slider";
 import { Separator } from "@/shared/components/ui/separator";
 import { Calendar } from "@/shared/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/shared/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowDown01Icon, Calendar03Icon } from "@hugeicons/core-free-icons";
 import { endOfDay, format, startOfDay } from "date-fns";
@@ -51,9 +47,7 @@ interface DraftState {
   hasSpecial: boolean | null;
 }
 
-function buildDraft(
-  params: ReturnType<typeof useOrderFilters>["params"],
-): DraftState {
+function buildDraft(params: ReturnType<typeof useOrderFilters>["params"]): DraftState {
   return {
     csvImported: params.csvImported,
     timestampFrom: params.timestampFrom,
@@ -90,20 +84,14 @@ interface OrdersFilterSheetProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function OrdersFilterSheet({
-  filters,
-  onOpenChange,
-}: OrdersFilterSheetProps) {
+export function OrdersFilterSheet({ filters, onOpenChange }: OrdersFilterSheetProps) {
   const { params, setFilters } = filters;
   const [draft, setDraft] = useState<DraftState>(() => buildDraft(params));
   const [isJurisdictionOpen, setIsJurisdictionOpen] = useState(false);
 
-  const updateDraft = useCallback(
-    <K extends keyof DraftState>(key: K, value: DraftState[K]) => {
-      setDraft((prev) => ({ ...prev, [key]: value }));
-    },
-    [],
-  );
+  const updateDraft = useCallback(<K extends keyof DraftState>(key: K, value: DraftState[K]) => {
+    setDraft((prev) => ({ ...prev, [key]: value }));
+  }, []);
 
   const handleApply = useCallback(() => {
     setFilters(draft);
@@ -113,7 +101,7 @@ export function OrdersFilterSheet({
   const handleClear = useCallback(() => {
     setDraft(EMPTY_DRAFT);
     onOpenChange(false);
-  }, []);
+  }, [onOpenChange]);
 
   const selectedDateRange: DateRange | undefined =
     draft.timestampFrom || draft.timestampTo
@@ -145,10 +133,7 @@ export function OrdersFilterSheet({
               <h4 className="text-sm font-medium">Date Range</h4>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="justify-start px-2.5 font-normal"
-                  >
+                  <Button variant="outline" className="justify-start px-2.5 font-normal">
                     <HugeiconsIcon icon={Calendar03Icon} strokeWidth={2} />
                     {selectedDateRange?.from ? (
                       selectedDateRange.to ? (
@@ -208,7 +193,10 @@ export function OrdersFilterSheet({
                     placeholder="0.00"
                     value={draft.taxAmountMin ?? ""}
                     onChange={(e) =>
-                      updateDraft("taxAmountMin", e.target.value ? parseFloat(e.target.value) : null)
+                      updateDraft(
+                        "taxAmountMin",
+                        e.target.value ? parseFloat(e.target.value) : null,
+                      )
                     }
                     onBlur={(e) => {
                       if (!e.target.value) return;
@@ -228,7 +216,10 @@ export function OrdersFilterSheet({
                     placeholder="999.99"
                     value={draft.taxAmountMax ?? ""}
                     onChange={(e) =>
-                      updateDraft("taxAmountMax", e.target.value ? parseFloat(e.target.value) : null)
+                      updateDraft(
+                        "taxAmountMax",
+                        e.target.value ? parseFloat(e.target.value) : null,
+                      )
                     }
                     onBlur={(e) => {
                       if (!e.target.value) return;
@@ -274,9 +265,7 @@ export function OrdersFilterSheet({
                     onChange={(e) =>
                       updateDraft(
                         "compositeTaxRateMin",
-                        e.target.value
-                          ? parseFloat(e.target.value) / 100
-                          : null,
+                        e.target.value ? parseFloat(e.target.value) / 100 : null,
                       )
                     }
                     onBlur={(e) => {
@@ -304,9 +293,7 @@ export function OrdersFilterSheet({
                     onChange={(e) =>
                       updateDraft(
                         "compositeTaxRateMax",
-                        e.target.value
-                          ? parseFloat(e.target.value) / 100
-                          : null,
+                        e.target.value ? parseFloat(e.target.value) / 100 : null,
                       )
                     }
                     onBlur={(e) => {
@@ -350,21 +337,15 @@ export function OrdersFilterSheet({
                       <Input
                         placeholder="e.g. New York State"
                         value={draft.jurState ?? ""}
-                        onChange={(e) =>
-                          updateDraft("jurState", e.target.value || null)
-                        }
+                        onChange={(e) => updateDraft("jurState", e.target.value || null)}
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <Label className="text-muted-foreground text-xs">
-                        County
-                      </Label>
+                      <Label className="text-muted-foreground text-xs">County</Label>
                       <Input
                         placeholder="e.g. New York County"
                         value={draft.jurCounty ?? ""}
-                        onChange={(e) =>
-                          updateDraft("jurCounty", e.target.value || null)
-                        }
+                        onChange={(e) => updateDraft("jurCounty", e.target.value || null)}
                       />
                     </div>
                   </div>
@@ -374,21 +355,15 @@ export function OrdersFilterSheet({
                       <Input
                         placeholder="e.g. New York City"
                         value={draft.jurCity ?? ""}
-                        onChange={(e) =>
-                          updateDraft("jurCity", e.target.value || null)
-                        }
+                        onChange={(e) => updateDraft("jurCity", e.target.value || null)}
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <Label className="text-muted-foreground text-xs">
-                        Special district
-                      </Label>
+                      <Label className="text-muted-foreground text-xs">Special district</Label>
                       <Input
                         placeholder="e.g. MCTD"
                         value={draft.jurSpecial ?? ""}
-                        onChange={(e) =>
-                          updateDraft("jurSpecial", e.target.value || null)
-                        }
+                        onChange={(e) => updateDraft("jurSpecial", e.target.value || null)}
                       />
                     </div>
                   </div>
@@ -413,9 +388,7 @@ export function OrdersFilterSheet({
                 <Switch
                   id="csv-only-switch"
                   checked={draft.csvImported === true}
-                  onCheckedChange={(checked) =>
-                    updateDraft("csvImported", checked ? true : null)
-                  }
+                  onCheckedChange={(checked) => updateDraft("csvImported", checked ? true : null)}
                 />
               </div>
               <div className="flex items-center justify-between rounded-md border p-3">
@@ -430,9 +403,7 @@ export function OrdersFilterSheet({
                 <Switch
                   id="has-special-switch"
                   checked={draft.hasSpecial === true}
-                  onCheckedChange={(checked) =>
-                    updateDraft("hasSpecial", checked ? true : null)
-                  }
+                  onCheckedChange={(checked) => updateDraft("hasSpecial", checked ? true : null)}
                 />
               </div>
             </div>
@@ -443,9 +414,7 @@ export function OrdersFilterSheet({
           <Button variant="outline" onClick={handleClear}>
             Clear filters
           </Button>
-          <Button onClick={handleApply}>
-            Apply filters
-          </Button>
+          <Button onClick={handleApply}>Apply filters</Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>
