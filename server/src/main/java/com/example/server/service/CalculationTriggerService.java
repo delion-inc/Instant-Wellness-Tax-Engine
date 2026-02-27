@@ -32,8 +32,6 @@ public class CalculationTriggerService {
                                   Map<Long, ImportableRow> externalIdMap,
                                   OutOfScopeHandling oosPolicy) {
         try {
-            Thread.sleep(3_000); //HERE
-
             int[] totalCalculated = {0};
             int[] totalOutOfScope = {0};
 
