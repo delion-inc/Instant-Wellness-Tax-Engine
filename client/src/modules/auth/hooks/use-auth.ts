@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { authApi } from "../api/auth.api";
 import { authStore } from "../stores/auth.store";
 import { CURRENT_USER_QUERY_KEY } from "@/shared/hooks/use-current-user";
+import { resetOrdersTour } from "@/modules/orders/hooks/use-orders-tour";
 import type { LoginRequest, RegistrationRequest } from "../types/auth.types";
 
 export const useLogin = () => {
@@ -13,6 +14,7 @@ export const useLogin = () => {
     mutationFn: (data: LoginRequest) => authApi.login(data),
     onSuccess: (response) => {
       authStore.setAuth(response.accessToken);
+      resetOrdersTour();
       queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
       router.push("/orders");
     },
@@ -27,6 +29,7 @@ export const useRegistration = () => {
     mutationFn: (data: RegistrationRequest) => authApi.registration(data),
     onSuccess: (response) => {
       authStore.setAuth(response.accessToken);
+      resetOrdersTour();
       queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
       router.push("/orders");
     },
