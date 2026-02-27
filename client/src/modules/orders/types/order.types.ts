@@ -18,10 +18,10 @@ export interface SpecialRate {
 }
 
 export interface OrderJurisdictions {
-  city: string;
+  city: string | null;
   state: string;
   county: string;
-  special: string[];
+  special: string[] | null;
 }
 
 export interface OrderResponse {
@@ -42,7 +42,7 @@ export interface OrderResponse {
   stateRate: number;
   countyRate: number;
   cityRate: number;
-  specialRates: SpecialRate[];
+  specialRates: SpecialRate[] | null;
   jurisdictions: OrderJurisdictions;
 }
 
