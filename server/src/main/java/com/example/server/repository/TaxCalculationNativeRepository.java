@@ -1,17 +1,26 @@
 package com.example.server.repository;
 
+import com.example.server.dto.order.CalculationBatchProgress;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.Array;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 @Slf4j
 @Repository
 @RequiredArgsConstructor
 public class TaxCalculationNativeRepository {
 
-    private static final String CALCULATE_SQL = """
+    private static final int BATCH_SIZE = 1000;
+
+    private static final String CALCULATE_BATCH_SQL = """
             WITH jurisdiction_rates AS (
                 SELECT
                     o.id                                                                AS order_id,
@@ -36,7 +45,51 @@ public class TaxCalculationNativeRepository {
                 JOIN tax_rates tr
                     ON tr.jurisdiction_id = j.id
                    AND (tr.valid_to IS NULL OR tr.valid_to >= CURRENT_DATE)
-                WHERE %s
+                WHERE o.id = ANY(?) AND o.status = 'ADDED'
+                GROUP BY o.id
+            )
+            UPDATE orders o
+            SET
+                state_rate         = jr.state_rate,
+                county_rate        = jr.county_rate,
+                city_rate          = jr.city_rate,
+                special_rates      = jr.special_rates_json,
+                composite_tax_rate = jr.state_rate + jr.county_rate + jr.city_rate + jr.special_sum,
+                tax_amount         = o.subtotal * (jr.state_rate + jr.county_rate + jr.city_rate + jr.special_sum),
+                total_amount       = o.subtotal * (1 + jr.state_rate + jr.county_rate + jr.city_rate + jr.special_sum),
+                jurisdictions      = jr.jurisdictions_json,
+                status             = 'CALCULATED',
+                updated_at         = now()
+            FROM jurisdiction_rates jr
+            WHERE o.id = jr.order_id
+            """;
+
+    private static final String CALCULATE_SINGLE_SQL = """
+            WITH jurisdiction_rates AS (
+                SELECT
+                    o.id                                                                AS order_id,
+                    COALESCE(MAX(CASE WHEN tr.rate_type = 'STATE'   THEN tr.rate END), 0) AS state_rate,
+                    COALESCE(MAX(CASE WHEN tr.rate_type = 'COUNTY'  THEN tr.rate END), 0) AS county_rate,
+                    COALESCE(MAX(CASE WHEN tr.rate_type = 'CITY'    THEN tr.rate END), 0) AS city_rate,
+                    COALESCE(SUM(CASE WHEN tr.rate_type = 'SPECIAL' THEN tr.rate END), 0) AS special_sum,
+                    jsonb_agg(
+                        jsonb_build_object('name', j.name, 'rate', tr.rate)
+                    ) FILTER (WHERE tr.rate_type = 'SPECIAL')                          AS special_rates_json,
+                    jsonb_build_object(
+                        'state',   MAX(CASE WHEN j.type = 'STATE'   THEN j.name END),
+                        'county',  MAX(CASE WHEN j.type = 'COUNTY'  THEN j.name END),
+                        'city',    MAX(CASE WHEN j.type = 'CITY'    THEN j.name END),
+                        'special', jsonb_agg(j.name) FILTER (WHERE j.type = 'SPECIAL')
+                    )                                                                   AS jurisdictions_json
+                FROM orders o
+                JOIN geo_jurisdictions j
+                    ON ST_Contains(j.geom,
+                       ST_SetSRID(ST_MakePoint(CAST(o.longitude AS float8),
+                                               CAST(o.latitude  AS float8)), 4326))
+                JOIN tax_rates tr
+                    ON tr.jurisdiction_id = j.id
+                   AND (tr.valid_to IS NULL OR tr.valid_to >= CURRENT_DATE)
+                WHERE o.id = ? AND o.status = 'ADDED'
                 GROUP BY o.id
             )
             UPDATE orders o
@@ -59,22 +112,75 @@ public class TaxCalculationNativeRepository {
 
     @Transactional
     public int calculatePendingOrders() {
-        int calculated = jdbc.update(CALCULATE_SQL.formatted("o.status = 'ADDED'"));
+        return calculatePendingOrders(null);
+    }
 
-        int outOfScope = jdbc.update("""
-                UPDATE orders SET status = 'OUT_OF_SCOPE', updated_at = now()
-                WHERE status = 'ADDED'
-                """);
+    @Transactional
+    public int calculatePendingOrders(Consumer<CalculationBatchProgress> onBatch) {
+        int totalPending = Objects.requireNonNull(
+                jdbc.queryForObject("SELECT COUNT(*) FROM orders WHERE status = 'ADDED'", Integer.class));
 
-        log.info("Bulk tax calculation: {} calculated, {} out of scope.", calculated, outOfScope);
-        return calculated;
+        log.info("Tax calculation started: {} pending orders to process (batch size={}).", totalPending, BATCH_SIZE);
+
+        if (totalPending == 0) {
+            log.info("Tax calculation finished: nothing to process.");
+            return 0;
+        }
+
+        int totalCalculated = 0;
+        int totalOutOfScope = 0;
+        int batchNum        = 0;
+
+        while (true) {
+            List<Long> batchIds = jdbc.queryForList(
+                    "SELECT id FROM orders WHERE status = 'ADDED' ORDER BY id LIMIT " + BATCH_SIZE,
+                    Long.class);
+
+            if (batchIds.isEmpty()) break;
+
+            batchNum++;
+            Long[] idsArr = batchIds.toArray(new Long[0]);
+
+            int calculated = Objects.requireNonNull(jdbc.execute((ConnectionCallback<Integer>) conn -> {
+                Array arr = conn.createArrayOf("bigint", idsArr);
+                try (var ps = conn.prepareStatement(CALCULATE_BATCH_SQL)) {
+                    ps.setArray(1, arr);
+                    return ps.executeUpdate();
+                }
+            }));
+
+            int outOfScope = Objects.requireNonNull(jdbc.execute((ConnectionCallback<Integer>) conn -> {
+                Array arr = conn.createArrayOf("bigint", idsArr);
+                try (var ps = conn.prepareStatement(
+                        "UPDATE orders SET status = 'OUT_OF_SCOPE', updated_at = now() WHERE id = ANY(?) AND status = 'ADDED'")) {
+                    ps.setArray(1, arr);
+                    return ps.executeUpdate();
+                }
+            }));
+
+            totalCalculated += calculated;
+            totalOutOfScope += outOfScope;
+
+            log.info("Batch #{} ({} rows): {} calculated, {} out of scope — total so far: {}/{} done.",
+                    batchNum, batchIds.size(), calculated, outOfScope, totalCalculated + totalOutOfScope, totalPending);
+
+            if (onBatch != null) {
+                onBatch.accept(new CalculationBatchProgress(
+                        calculated, outOfScope, batchIds.size(),
+                        totalCalculated, totalOutOfScope,
+                        totalCalculated + totalOutOfScope, totalPending));
+            }
+        }
+
+        log.info("Tax calculation finished: {} calculated, {} out of scope (total processed: {}).",
+                totalCalculated, totalOutOfScope, totalCalculated + totalOutOfScope);
+
+        return totalCalculated;
     }
 
     @Transactional
     public void calculateSingleOrder(Long orderId) {
-        int calculated = jdbc.update(
-                CALCULATE_SQL.formatted("o.id = ? AND o.status = 'ADDED'"),
-                orderId);
+        int calculated = jdbc.update(CALCULATE_SINGLE_SQL, orderId);
 
         if (calculated == 0) {
             jdbc.update("""
