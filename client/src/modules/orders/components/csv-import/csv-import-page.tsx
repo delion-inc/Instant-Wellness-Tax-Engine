@@ -1,53 +1,100 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { BackLink } from "@/shared/components/back-link";
 import { useImportCsv } from "../../hooks/use-import-csv";
-import type { ImportCsvOptions } from "../../types/order.types";
+import { useImportProgress } from "../../hooks/use-import-progress";
+import { ordersApi } from "../../api/orders.api";
+import type { ImportCsvOptions, ImportResponse } from "../../types/order.types";
 import { CsvUploadCard } from "./csv-upload-card";
 import { CsvRequirementsCard } from "./csv-requirements-card";
+import { CsvCalculationProgress } from "./csv-calculation-progress";
 import { CsvImportResult } from "./csv-import-result";
+
+type Phase = "idle" | "uploading" | "calculating" | "result";
 
 const DEFAULT_OPTIONS: ImportCsvOptions = {
   duplicateHandling: "skip",
   outOfScopeHandling: "mark",
 };
 
+function derivePhase(
+  isPending: boolean,
+  importResult: ImportResponse | null,
+  calculationDone: boolean,
+  hasError: boolean,
+): Phase {
+  if (hasError) return "result";
+  if (isPending) return "uploading";
+  if (importResult && !calculationDone) {
+    const needsCalculation =
+      importResult.summary.importedRows > 0 &&
+      importResult.status !== "FAILED" &&
+      importResult.status !== "COMPLETED" &&
+      importResult.status !== "COMPLETED_WITH_ERRORS";
+    return needsCalculation ? "calculating" : "result";
+  }
+  if (importResult && calculationDone) return "result";
+  return "idle";
+}
+
 export function CsvImportPage() {
   const mutation = useImportCsv();
   const [file, setFile] = useState<File | null>(null);
   const [options, setOptions] = useState<ImportCsvOptions>(DEFAULT_OPTIONS);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [importResult, setImportResult] = useState<ImportResponse | null>(null);
+  const [calculationDone, setCalculationDone] = useState(false);
 
-  const hasResult = mutation.isSuccess || mutation.isError;
+  const trackingId = importResult?.trackingId ?? null;
 
-  useEffect(() => {
-    if (mutation.isPending) {
-      setElapsedSeconds(0);
-      timerRef.current = setInterval(
-        () => setElapsedSeconds((s) => s + 1),
-        1000,
-      );
-    } else if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [mutation.isPending]);
+  const { progress } = useImportProgress({
+    trackingId: calculationDone ? null : trackingId,
+    onComplete: useCallback(async () => {
+      if (trackingId) {
+        try {
+          const summary = await ordersApi.getImportSummary(trackingId);
+          setImportResult(summary);
+        } catch {
+          // fall through — keep the original importResult
+        }
+      }
+      setCalculationDone(true);
+    }, [trackingId]),
+  });
+
+  const phase = derivePhase(mutation.isPending, importResult, calculationDone, mutation.isError);
 
   const handleStartImport = useCallback(() => {
     if (!file) return;
-    mutation.mutate({ file, options });
+    setCalculationDone(false);
+    setImportResult(null);
+    mutation.mutate(
+      { file, options },
+      {
+        onSuccess: (data) => {
+          setImportResult(data);
+          const needsCalculation =
+            data.summary.importedRows > 0 &&
+            data.status !== "FAILED" &&
+            data.status !== "COMPLETED" &&
+            data.status !== "COMPLETED_WITH_ERRORS";
+          if (!needsCalculation) {
+            setCalculationDone(true);
+          }
+        },
+        onError: () => {
+          setCalculationDone(true);
+        },
+      },
+    );
   }, [file, options, mutation]);
 
   const handleReset = useCallback(() => {
     mutation.reset();
     setFile(null);
     setOptions(DEFAULT_OPTIONS);
-    setElapsedSeconds(0);
+    setImportResult(null);
+    setCalculationDone(false);
   }, [mutation]);
 
   return (
@@ -56,22 +103,24 @@ export function CsvImportPage() {
         <BackLink href="/orders/new">Back to Add orders</BackLink>
 
         <div className="space-y-1">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Import orders (CSV)
-          </h2>
+          <h2 className="text-2xl font-semibold tracking-tight">Import orders (CSV)</h2>
           <p className="text-muted-foreground text-sm">
             Upload a CSV to bulk-create orders and calculate tax breakdown.
           </p>
         </div>
       </div>
 
-      {hasResult ? (
-        <div className="max-w-xl">
+      {phase === "result" ? (
+        <div className="mx-auto w-full max-w-7xl">
           <CsvImportResult
-            data={mutation.data}
+            data={importResult ?? undefined}
             error={mutation.error}
             onReset={handleReset}
           />
+        </div>
+      ) : phase === "calculating" && importResult ? (
+        <div className="mx-auto w-full max-w-7xl">
+          <CsvCalculationProgress importResult={importResult} progress={progress} />
         </div>
       ) : (
         <div className="grid items-start gap-6 lg:grid-cols-[1fr_1fr]">
@@ -82,7 +131,6 @@ export function CsvImportPage() {
             onOptionsChange={setOptions}
             onStartImport={handleStartImport}
             isPending={mutation.isPending}
-            elapsedSeconds={elapsedSeconds}
           />
           <CsvRequirementsCard />
         </div>

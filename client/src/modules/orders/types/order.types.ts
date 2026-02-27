@@ -94,9 +94,6 @@ export interface OrderFilterParams {
   jurSpecial?: string;
   jurSpecialIn?: string;
   hasSpecial?: boolean;
-
-  include?: string;
-  fields?: string;
 }
 
 export type DuplicateHandling = "skip" | "overwrite" | "fail";
@@ -107,8 +104,55 @@ export interface ImportCsvOptions {
   outOfScopeHandling: OutOfScopeHandling;
 }
 
-export interface ImportCsvResponse {
-  imported: number;
-  calculated: number;
+export type ImportStatus = "PROCESSING" | "COMPLETED" | "COMPLETED_WITH_ERRORS" | "FAILED";
+
+export type ImportErrorReason =
+  | "MISSING_COLUMN"
+  | "BAD_FORMAT"
+  | "INVALID_TIMESTAMP"
+  | "INVALID_COORDINATES"
+  | "OUT_OF_SCOPE"
+  | "NEGATIVE_SUBTOTAL"
+  | "DUPLICATE_EXTERNAL_ID"
+  | "CALCULATION_FAILED"
+  | "UNKNOWN";
+
+export interface ImportSummary {
+  totalRows: number;
+  parsedRows: number;
+  importedRows: number;
+  calculatedRows: number;
+  failedRows: number;
+  skippedDuplicateRows: number;
+  outOfScopeRows: number;
+}
+
+export interface ImportRowError {
+  rowNumber: number;
+  externalId: number;
+  reason: ImportErrorReason;
+  field: string;
   message: string;
+  rawRow: string;
+}
+
+export interface ImportResponse {
+  trackingId: string;
+  status: ImportStatus;
+  message: string;
+  summary: ImportSummary;
+  errorsPreview: ImportRowError[];
+}
+
+export interface CalculationProgressEvent {
+  trackingId: string;
+  calculated: number;
+  outOfScope: number;
+  pending: number;
+  total: number;
+  batchCalculated: number;
+  batchOutOfScope: number;
+  batchSize: number;
+  status: "PROCESSING" | "COMPLETED" | "FAILED";
+  terminal: boolean;
 }

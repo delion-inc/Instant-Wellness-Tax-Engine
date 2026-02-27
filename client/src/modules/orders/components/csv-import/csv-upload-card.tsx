@@ -9,13 +9,7 @@ import {
   Download04Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/shared/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Label } from "@/shared/components/ui/label";
 import {
   Select,
@@ -36,12 +30,6 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function formatElapsed(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return m > 0 ? `${m}m ${s}s` : `${s}s`;
-}
-
 interface CsvUploadCardProps {
   file: File | null;
   onFileChange: (file: File | null) => void;
@@ -49,7 +37,6 @@ interface CsvUploadCardProps {
   onOptionsChange: (options: ImportCsvOptions) => void;
   onStartImport: () => void;
   isPending: boolean;
-  elapsedSeconds: number;
 }
 
 export function CsvUploadCard({
@@ -59,7 +46,6 @@ export function CsvUploadCard({
   onOptionsChange,
   onStartImport,
   isPending,
-  elapsedSeconds,
 }: CsvUploadCardProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -123,9 +109,7 @@ export function CsvUploadCard({
             <HugeiconsIcon icon={CloudUploadIcon} className="size-6" />
           </div>
           <div>
-            <p className="text-sm font-medium">
-              Drag & drop your CSV here
-            </p>
+            <p className="text-sm font-medium">Drag & drop your CSV here</p>
             <p className="text-muted-foreground text-xs mt-1">
               or{" "}
               <span className="text-primary font-medium underline underline-offset-2">
@@ -151,9 +135,7 @@ export function CsvUploadCard({
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{file.name}</p>
-              <p className="text-muted-foreground text-xs">
-                {formatFileSize(file.size)}
-              </p>
+              <p className="text-muted-foreground text-xs">{formatFileSize(file.size)}</p>
             </div>
             {!isPending && (
               <button
@@ -171,14 +153,10 @@ export function CsvUploadCard({
           </div>
         )}
 
-        {/* Importing state */}
         {isPending && (
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Importing&hellip;</span>
-              <span className="tabular-nums text-muted-foreground">
-                {formatElapsed(elapsedSeconds)}
-              </span>
+              <span className="text-muted-foreground">Uploading&hellip;</span>
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-muted">
               <div className="bg-primary h-full w-1/3 animate-[indeterminate_1.5s_ease-in-out_infinite] rounded-full" />
@@ -247,16 +225,11 @@ export function CsvUploadCard({
           size="lg"
           disabled={!file || isPending}
           onClick={onStartImport}
-          className="w-full sm:max-w-[160px]"
+          className="w-full sm:max-w-40"
         >
           {isPending ? "Importing..." : "Start import"}
         </Button>
-        <Button
-          variant="outline"
-          size="lg"
-          className="w-full sm:w-auto"
-          asChild
-        >
+        <Button variant="outline" size="lg" className="w-full sm:w-auto" asChild>
           <a href="/order-import-template.csv" download>
             <HugeiconsIcon icon={Download04Icon} className="size-4" />
             Download template

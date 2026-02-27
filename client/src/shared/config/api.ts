@@ -14,6 +14,12 @@ export const API_ENDPOINTS = {
     list: "/orders",
     create: "/orders",
     import: "/orders/import",
+    imports: {
+      progress: (trackingId: string) => `/orders/imports/${trackingId}/progress`,
+      calculation: (trackingId: string) => `/orders/imports/${trackingId}/calculation`,
+      errors: (trackingId: string) => `/orders/imports/${trackingId}/errors`,
+      summary: (trackingId: string) => `/orders/imports/${trackingId}/summary`,
+    },
   },
 } as const;
 
