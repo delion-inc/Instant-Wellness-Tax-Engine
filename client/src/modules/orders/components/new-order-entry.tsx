@@ -8,14 +8,14 @@ import { BackLink } from "@/shared/components/back-link";
 
 const ORDER_OPTIONS = [
   {
-    href: "/dashboard/orders/new/csv",
+    href: "/orders/new/csv",
     icon: <HugeiconsIcon icon={Csv01Icon} strokeWidth={2} />,
     title: "Import orders (CSV)",
     description:
       "Upload a CSV file to bulk-create orders and automatically calculate composite sales tax for each record.",
   },
   {
-    href: "/dashboard/orders/new/manual",
+    href: "/orders/new/manual",
     icon: <HugeiconsIcon icon={PlusSignCircleIcon} strokeWidth={2} />,
     title: "Add order manually",
     description:
@@ -27,7 +27,7 @@ export function NewOrderEntry() {
   return (
     <>
       <div className="m-5">
-        <BackLink href="/dashboard/orders">Back to Orders</BackLink>
+        <BackLink href="/orders">Back to Orders</BackLink>
       </div>
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 md:px-6 md:py-16">
         <LightRays

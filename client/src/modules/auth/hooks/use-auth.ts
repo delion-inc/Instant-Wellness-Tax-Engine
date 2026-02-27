@@ -14,7 +14,7 @@ export const useLogin = () => {
     onSuccess: (response) => {
       authStore.setAuth(response.accessToken);
       queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
-      router.push("/dashboard");
+      router.push("/orders");
     },
   });
 };
@@ -28,7 +28,7 @@ export const useRegistration = () => {
     onSuccess: (response) => {
       authStore.setAuth(response.accessToken);
       queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
-      router.push("/dashboard");
+      router.push("/orders");
     },
   });
 };
