@@ -265,7 +265,7 @@ export function OrdersTable({
     return (
       <div className="overflow-hidden rounded-lg border">
         <Table>
-          <TableHeader className="bg-muted">
+          <TableHeader>
             <TableRow>
               {columns.map((col, i) => (
                 <TableHead key={i}>{typeof col.header === "string" ? col.header : ""}</TableHead>
@@ -291,7 +291,7 @@ export function OrdersTable({
   return (
     <div className="overflow-hidden rounded-lg border">
       <Table>
-        <TableHeader data-tour="orders-sort" className="bg-muted sticky top-0 z-10">
+        <TableHeader data-tour="orders-sort" className="bg-muted/60 sticky top-0 z-10">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (

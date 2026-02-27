@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Csv01Icon, PlusSignCircleIcon } from "@hugeicons/core-free-icons";
 import { LightRays } from "@/shared/components/ui/light-rays";
 import { BackLink } from "@/shared/components/back-link";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 
 const ORDER_OPTIONS = [
   {
@@ -24,18 +25,21 @@ const ORDER_OPTIONS = [
 ] as const;
 
 export function NewOrderEntry() {
+  const isMobile = useIsMobile();
   return (
     <>
       <div className="m-5">
         <BackLink href="/orders">Back to Orders</BackLink>
       </div>
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 md:px-6 md:py-16">
-        <LightRays
-          count={4}
-          color="oklch(0.5393 0.2713 286.7462 / 0.20)"
-          blur={60}
-          length="100vh"
-        />
+        {isMobile && (
+          <LightRays
+            count={4}
+            color="oklch(0.5393 0.2713 286.7462 / 0.20)"
+            blur={60}
+            length="100vh"
+          />
+        )}
         <div className="mx-auto w-full max-w-3xl space-y-8">
           <div className="space-y-2 text-center">
             <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
