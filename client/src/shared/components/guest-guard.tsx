@@ -17,7 +17,7 @@ export const GuestGuard = ({ children }: GuestGuardProps) => {
   }
 
   if (authStore.isAuthenticated()) {
-    redirect("/dashboard");
+    redirect("/orders");
   }
 
   return <>{children}</>;

@@ -1,5 +1,5 @@
 import { HugeiconsIcon } from "@hugeicons/react"
-import { DashboardSquare01Icon, ShoppingBag02Icon } from "@hugeicons/core-free-icons"
+import { ShoppingBag02Icon } from "@hugeicons/core-free-icons"
 
 export interface NavItem {
   title: string
@@ -9,21 +9,16 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: <HugeiconsIcon icon={DashboardSquare01Icon} strokeWidth={2} />,
-  },
-  {
     title: "Orders",
-    url: "/dashboard/orders",
+    url: "/orders",
     icon: <HugeiconsIcon icon={ShoppingBag02Icon} strokeWidth={2} />,
   },
 ]
 
 const ROUTE_TITLES: Record<string, string> = {
-  "/dashboard/orders/new": "Add order",
-  "/dashboard/orders/new/csv": "Import orders (CSV)",
-  "/dashboard/orders/new/manual": "Add order manually",
+  "/orders/new": "Add order",
+  "/orders/new/csv": "Import orders (CSV)",
+  "/orders/new/manual": "Add order manually",
 }
 
 export function getNavTitleByPathname(pathname: string): string {
@@ -31,7 +26,7 @@ export function getNavTitleByPathname(pathname: string): string {
 
   const match =
     NAV_ITEMS.find((item) => item.url === pathname) ??
-    NAV_ITEMS.find((item) => item.url !== "/dashboard" && pathname.startsWith(item.url))
+    NAV_ITEMS.find((item) => item.url !== "/orders" && pathname.startsWith(item.url))
 
-  return match?.title ?? "Dashboard"
+  return match?.title ?? "Orders"
 }

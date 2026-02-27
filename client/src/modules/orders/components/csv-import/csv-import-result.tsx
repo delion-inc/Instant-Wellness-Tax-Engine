@@ -153,7 +153,7 @@ export function CsvImportResult({
 
       <CardFooter className="flex-col gap-2 sm:flex-row">
         <Button size="lg" className="w-full sm:max-w-[150px]" asChild>
-          <Link href="/dashboard/orders">View orders</Link>
+          <Link href="/orders">View orders</Link>
         </Button>
         <Button
           variant="outline"
