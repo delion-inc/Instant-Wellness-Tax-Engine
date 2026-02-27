@@ -16,4 +16,6 @@ public interface OrderService {
 
     ImportResultResponse importFromCsv(MultipartFile file, Long userId,
                                        String duplicateHandling, String outOfScopeHandling);
+
+    ImportResultResponse getCalculationResult(String trackingId);
 }
