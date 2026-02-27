@@ -98,8 +98,7 @@ export function useOrderFilters() {
     const result: OrderFilterParams = {
       page: params.page,
       pageSize: params.pageSize,
-      sort: params.sort,
-      include: "details",
+      sort: params.sort
     };
 
     if (params.search) {

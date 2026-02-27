@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback, Suspense } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
 import { useOrderFilters } from "../../hooks/use-order-filters";
 import { useOrders } from "../../hooks/use-orders";
+import { useOrdersTour } from "../../hooks/use-orders-tour";
 import { OrdersHeader } from "./orders-header";
 import { OrdersFilterBar } from "./orders-filter-bar";
 import { OrdersTable } from "./orders-table";
@@ -13,8 +14,16 @@ import type { OrderResponse } from "../../types/order.types";
 function OrdersPageContent() {
   const filters = useOrderFilters();
   const { data, isLoading } = useOrders(filters.apiParams);
+  const { startTour, hasSeenTour } = useOrdersTour();
   const [selectedOrder, setSelectedOrder] = useState<OrderResponse | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && data && !hasSeenTour) {
+      const timer = setTimeout(startTour, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, data, hasSeenTour, startTour]);
 
   const handleRowClick = useCallback((order: OrderResponse) => {
     setSelectedOrder(order);
@@ -39,11 +48,9 @@ function OrdersPageContent() {
 
   return (
     <div className="flex flex-col gap-4 px-4 py-4 md:gap-6 md:py-6 lg:px-6">
-      <OrdersHeader />
+      <OrdersHeader onStartTour={startTour} />
 
-      <OrdersFilterBar
-        filters={filters}
-      />
+      <OrdersFilterBar filters={filters} />
 
       <OrdersTable
         data={pageData.content}

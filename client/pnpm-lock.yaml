@@ -32,6 +32,9 @@ importers:
       '@hugeicons/react':
         specifier: ^1.1.5
         version: 1.1.5(react@19.2.3)
+      '@microsoft/fetch-event-source':
+        specifier: ^2.0.1
+        version: 2.0.1
       '@tanstack/react-query':
         specifier: ^5.90.21
         version: 5.90.21(react@19.2.3)
@@ -50,6 +53,9 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
+      driver.js:
+        specifier: ^1.4.0
+        version: 1.4.0
       mapbox-gl:
         specifier: ^3.19.0
         version: 3.19.0
@@ -641,6 +647,9 @@ packages:
 
   '@mapbox/vector-tile@2.0.4':
     resolution: {integrity: sha512-AkOLcbgGTdXScosBWwmmD7cDlvOjkg/DetGva26pIRiZPdeJYjYKarIlb4uxVzi6bwHO6EWH82eZ5Nuv4T5DUg==}
+
+  '@microsoft/fetch-event-source@2.0.1':
+    resolution: {integrity: sha512-W6CLUJ2eBMw3Rec70qrsEW0jOm/3twwJv21mrmj2yORiaVmVYGS4sSS5yUwvQc1ZlDLYGPnClVWmUUMagKNsfA==}
 
   '@modelcontextprotocol/sdk@1.26.0':
     resolution: {integrity: sha512-Y5RmPncpiDtTXDbLKswIJzTqu2hyBKxTNsgKqKclDbhIgg1wgtf1fRuvxgTnRfcnxtvvgbIEcqUOzZrJ6iSReg==}
@@ -2244,6 +2253,9 @@ packages:
   dotenv@17.3.1:
     resolution: {integrity: sha512-IO8C/dzEb6O3F9/twg6ZLXz164a2fhTnEWb95H23Dm4OuN+92NmEAlTrupP9VW6Jm3sO26tQlqyvyi4CsnY9GA==}
     engines: {node: '>=12'}
+
+  driver.js@1.4.0:
+    resolution: {integrity: sha512-Gm64jm6PmcU+si21sQhBrTAM1JvUrR0QhNmjkprNLxohOBzul9+pNHXgQaT9lW84gwg9GMLB3NZGuGolsz5uew==}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -4766,6 +4778,8 @@ snapshots:
       '@types/geojson': 7946.0.16
       pbf: 4.0.1
 
+  '@microsoft/fetch-event-source@2.0.1': {}
+
   '@modelcontextprotocol/sdk@1.26.0(zod@3.25.76)':
     dependencies:
       '@hono/node-server': 1.19.9(hono@4.12.2)
@@ -6355,6 +6369,8 @@ snapshots:
       csstype: 3.2.3
 
   dotenv@17.3.1: {}
+
+  driver.js@1.4.0: {}
 
   dunder-proto@1.0.1:
     dependencies:

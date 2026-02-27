@@ -58,7 +58,10 @@ export function OrdersFilterBar({ filters }: OrdersFilterBarProps) {
 
   return (
     <>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div
+        data-tour="orders-filters"
+        className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative w-full sm:w-[220px]">
             <HugeiconsIcon

@@ -14,7 +14,7 @@ const fontSerif = Lora({
 });
 
 export const metadata: Metadata = {
-  title: "Instant Wellness Tax Engine",
+  title: "IW Tax Engine",
   description: "Automate composite sales tax calculations for drone deliveries across NY State",
   manifest: "/manifest.json",
   icons: {

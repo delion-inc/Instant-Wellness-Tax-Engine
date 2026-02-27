@@ -291,7 +291,7 @@ export function OrdersTable({
   return (
     <div className="overflow-hidden rounded-lg border">
       <Table>
-        <TableHeader className="bg-muted sticky top-0 z-10">
+        <TableHeader data-tour="orders-sort" className="bg-muted sticky top-0 z-10">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
@@ -306,11 +306,12 @@ export function OrdersTable({
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows.length > 0 ? (
-            table.getRowModel().rows.map((row) => (
+            table.getRowModel().rows.map((row, index) => (
               <TableRow
                 key={row.id}
                 onClick={() => onRowClick(row.original)}
                 className="cursor-pointer"
+                {...(index === 0 ? { "data-tour": "orders-row" } : {})}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>

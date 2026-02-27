@@ -1,7 +1,6 @@
 "use client";
 
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, type UseFormReturn } from "react-hook-form";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { DateTimePicker } from "@/shared/components/ui/date-time-picker";
@@ -12,44 +11,17 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/shared/components/ui/field";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/ui/card";
-import {
-  createOrderSchema,
-  type CreateOrderFormValues,
-} from "../../types/order.schemas";
-import type { CreateOrderRequest } from "../../types/order.types";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import type { CreateOrderFormValues } from "../../types/order.schemas";
 
 interface ManualOrderFormProps {
-  onSubmit: (data: CreateOrderRequest) => void;
+  form: UseFormReturn<CreateOrderFormValues>;
+  onSubmit: (data: CreateOrderFormValues) => void;
   isPending: boolean;
 }
 
-export function ManualOrderForm({ onSubmit, isPending }: ManualOrderFormProps) {
-  const form = useForm<CreateOrderFormValues>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(createOrderSchema as any),
-    defaultValues: {
-      latitude: "" as unknown as number,
-      longitude: "" as unknown as number,
-      date: undefined,
-      subtotal: "",
-    },
-  });
-
-  const handleSubmit = form.handleSubmit((data) => {
-    onSubmit({
-      latitude: data.latitude,
-      longitude: data.longitude,
-      timestamp: data.date ? data.date.toISOString() : new Date().toISOString(),
-      subtotal: data.subtotal,
-    });
-  });
+export function ManualOrderForm({ form, onSubmit, isPending }: ManualOrderFormProps) {
+  const handleSubmit = form.handleSubmit(onSubmit);
 
   const handleFillSample = () => {
     form.reset({
@@ -74,9 +46,7 @@ export function ManualOrderForm({ onSubmit, isPending }: ManualOrderFormProps) {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="manual-order-latitude">
-                      Latitude
-                    </FieldLabel>
+                    <FieldLabel htmlFor="manual-order-latitude">Latitude</FieldLabel>
                     <Input
                       {...field}
                       id="manual-order-latitude"
@@ -86,16 +56,10 @@ export function ManualOrderForm({ onSubmit, isPending }: ManualOrderFormProps) {
                       placeholder="e.g. 40.7128"
                       autoComplete="off"
                       value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === "" ? "" : e.target.value,
-                        )
-                      }
+                      onChange={(e) => field.onChange(e.target.value === "" ? "" : e.target.value)}
                     />
                     <FieldDescription>-90 to 90</FieldDescription>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
@@ -105,9 +69,7 @@ export function ManualOrderForm({ onSubmit, isPending }: ManualOrderFormProps) {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="manual-order-longitude">
-                      Longitude
-                    </FieldLabel>
+                    <FieldLabel htmlFor="manual-order-longitude">Longitude</FieldLabel>
                     <Input
                       {...field}
                       id="manual-order-longitude"
@@ -117,16 +79,10 @@ export function ManualOrderForm({ onSubmit, isPending }: ManualOrderFormProps) {
                       placeholder="e.g. -74.0060"
                       autoComplete="off"
                       value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === "" ? "" : e.target.value,
-                        )
-                      }
+                      onChange={(e) => field.onChange(e.target.value === "" ? "" : e.target.value)}
                     />
                     <FieldDescription>-180 to 180</FieldDescription>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
@@ -137,18 +93,14 @@ export function ManualOrderForm({ onSubmit, isPending }: ManualOrderFormProps) {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="manual-order-date">
-                    Date & time
-                  </FieldLabel>
+                  <FieldLabel htmlFor="manual-order-date">Date & time</FieldLabel>
                   <DateTimePicker
                     id="manual-order-date"
                     value={field.value}
                     onChange={field.onChange}
                     aria-invalid={fieldState.invalid}
                   />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
@@ -158,9 +110,7 @@ export function ManualOrderForm({ onSubmit, isPending }: ManualOrderFormProps) {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="manual-order-subtotal">
-                    Subtotal
-                  </FieldLabel>
+                  <FieldLabel htmlFor="manual-order-subtotal">Subtotal</FieldLabel>
                   <Input
                     {...field}
                     id="manual-order-subtotal"
@@ -173,9 +123,7 @@ export function ManualOrderForm({ onSubmit, isPending }: ManualOrderFormProps) {
                   <FieldDescription>
                     Positive amount. We&apos;ll calculate tax and total.
                   </FieldDescription>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />

@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { ordersApi } from "../api/orders.api";
-import type { ImportCsvOptions } from "../types/order.types";
+import type { ImportCsvOptions, ImportResponse } from "../types/order.types";
 
 interface ImportCsvParams {
   file: File;
@@ -8,8 +8,7 @@ interface ImportCsvParams {
 }
 
 export const useImportCsv = () => {
-  return useMutation({
-    mutationFn: ({ file, options }: ImportCsvParams) =>
-      ordersApi.importCsv(file, options),
+  return useMutation<ImportResponse, Error, ImportCsvParams>({
+    mutationFn: ({ file, options }) => ordersApi.importCsv(file, options),
   });
 };

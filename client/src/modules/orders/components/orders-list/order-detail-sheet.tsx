@@ -163,7 +163,7 @@ export function OrderDetailSheet({ order, open, onOpenChange }: OrderDetailSheet
                 {jurisdictions.state && <DetailRow label="State" value={jurisdictions.state} />}
                 {jurisdictions.county && <DetailRow label="County" value={jurisdictions.county} />}
                 {jurisdictions.city && <DetailRow label="City" value={jurisdictions.city} />}
-                {jurisdictions.special?.length > 0 && (
+                {jurisdictions.special && jurisdictions.special.length > 0 && (
                   <>
                     <Separator className="my-1.5" />
                     <p className="text-muted-foreground mb-1">Special Districts</p>
