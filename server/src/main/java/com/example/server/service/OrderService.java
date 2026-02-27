@@ -14,5 +14,6 @@ public interface OrderService {
 
     PageResponse<OrderResponse> getOrders(OrderFilterRequest request, Pageable pageable);
 
-    ImportResultResponse importFromCsv(MultipartFile file, Long userId);
+    ImportResultResponse importFromCsv(MultipartFile file, Long userId,
+                                       String duplicateHandling, String outOfScopeHandling);
 }
