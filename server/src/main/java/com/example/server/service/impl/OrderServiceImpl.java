@@ -207,10 +207,13 @@ public class OrderServiceImpl implements OrderService {
     private ImportResultResponse buildResponse(String batchId, int totalRows, int importedRows,
                                                List<ImportRowError> errors, int skipped) {
         int failedRows = errors.size();
-        ImportStatus status = failedRows == 0 ? ImportStatus.COMPLETED : ImportStatus.COMPLETED_WITH_ERRORS;
+        ImportStatus status = importedRows > 0
+                ? ImportStatus.PROCESSING
+                : (failedRows == 0 ? ImportStatus.COMPLETED : ImportStatus.COMPLETED_WITH_ERRORS);
 
-        String message = String.format("Imported %d orders. %d rows failed validation. Tax calculation is running in background.",
-                importedRows, failedRows);
+        String message = importedRows > 0
+                ? String.format("Imported %d orders. %d rows failed validation. Tax calculation is running in background.", importedRows, failedRows)
+                : String.format("No orders imported. %d rows failed validation.", failedRows);
 
         ImportSummary summary = ImportSummary.builder()
                 .totalRows(totalRows)
