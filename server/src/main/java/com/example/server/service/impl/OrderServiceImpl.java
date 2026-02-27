@@ -9,6 +9,7 @@ import com.example.server.dto.order.OrderFilterParams;
 import com.example.server.dto.order.OrderFilterRequest;
 import com.example.server.dto.order.OrderRequest;
 import com.example.server.dto.order.OrderResponse;
+import com.example.server.entity.ImportBatch;
 import com.example.server.entity.Order;
 import com.example.server.enums.DuplicateHandling;
 import com.example.server.enums.ImportErrorReason;
@@ -16,9 +17,11 @@ import com.example.server.enums.ImportStatus;
 import com.example.server.enums.OrderStatus;
 import com.example.server.enums.OutOfScopeHandling;
 import com.example.server.mapper.OrderMapper;
+import com.example.server.repository.ImportBatchRepository;
 import com.example.server.repository.OrderRepository;
 import com.example.server.repository.OrderSpecification;
 import com.example.server.repository.native_query.OrderNativeRepository;
+import com.example.server.service.CalculationProgressStore;
 import com.example.server.service.CalculationTriggerService;
 import com.example.server.service.ImportBatchStore;
 import com.example.server.service.OrderService;
@@ -35,6 +38,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -59,6 +63,8 @@ public class OrderServiceImpl implements OrderService {
     private final TaxCalculationService taxCalculationService;
     private final CalculationTriggerService calculationTriggerService;
     private final ImportBatchStore importBatchStore;
+    private final CalculationProgressStore calculationProgressStore;
+    private final ImportBatchRepository importBatchRepository;
     private final EntityManager entityManager;
 
     @Override
@@ -197,11 +203,21 @@ public class OrderServiceImpl implements OrderService {
 
         importBatchStore.save(batchId, allErrors);
 
+        ImportResultResponse response = buildResponse(batchId, parsed.totalRows(), importedRows, allErrors, skippedDuplicates);
+
+        importBatchRepository.save(ImportBatch.builder()
+                .trackingId(batchId)
+                .totalRows(response.getSummary().getTotalRows())
+                .parsedRows(response.getSummary().getParsedRows())
+                .importedRows(response.getSummary().getImportedRows())
+                .skippedDuplicateRows(response.getSummary().getSkippedDuplicateRows())
+                .build());
+
         if (importedRows > 0) {
             calculationTriggerService.calculateAndTrack(batchId, importedRows, externalIds, externalIdMap, oosPolicy);
         }
 
-        return buildResponse(batchId, parsed.totalRows(), importedRows, allErrors, skippedDuplicates);
+        return response;
     }
 
     private ImportResultResponse buildResponse(String batchId, int totalRows, int importedRows,
@@ -245,5 +261,38 @@ public class OrderServiceImpl implements OrderService {
                 .summary(ImportSummary.builder().build())
                 .errorsPreview(List.of())
                 .build();
+    }
+
+    @Override
+    public ImportResultResponse getCalculationResult(String trackingId) {
+        return calculationProgressStore.getResult(trackingId)
+                .filter(e -> "COMPLETED".equals(e.getStatus()) || "FAILED".equals(e.getStatus()))
+                .map(event -> {
+                    List<ImportRowError> errors = importBatchStore.exists(trackingId)
+                            ? importBatchStore.get(trackingId)
+                            : List.of();
+                    ImportStatus status = errors.isEmpty() ? ImportStatus.COMPLETED : ImportStatus.COMPLETED_WITH_ERRORS;
+
+                    ImportBatch batch = importBatchRepository.findById(trackingId).orElse(null);
+
+                    return ImportResultResponse.builder()
+                            .trackingId(trackingId)
+                            .status(status)
+                            .message(String.format("Calculation complete. %d calculated, %d out of scope.",
+                                    event.getCalculated(), event.getOutOfScope()))
+                            .summary(ImportSummary.builder()
+                                    .totalRows(batch != null ? batch.getTotalRows() : 0)
+                                    .parsedRows(batch != null ? batch.getParsedRows() : 0)
+                                    .importedRows(batch != null ? batch.getImportedRows() : 0)
+                                    .calculatedRows(event.getCalculated())
+                                    .outOfScopeRows(event.getOutOfScope())
+                                    .failedRows(errors.size())
+                                    .skippedDuplicateRows(batch != null ? batch.getSkippedDuplicateRows() : 0)
+                                    .build())
+                            .errorsPreview(errors)
+                            .build();
+                })
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Calculation not finished or tracking ID not found: " + trackingId));
     }
 }

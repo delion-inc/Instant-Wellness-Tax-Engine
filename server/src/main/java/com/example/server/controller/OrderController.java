@@ -1,7 +1,6 @@
 package com.example.server.controller;
 
 import com.example.server.dto.common.PageResponse;
-import com.example.server.dto.order.CalculationProgressEvent;
 import com.example.server.dto.order.ImportResultResponse;
 import com.example.server.dto.order.ImportRowError;
 import com.example.server.dto.order.OrderFilterRequest;
@@ -77,13 +76,11 @@ public class OrderController {
         return progressStore.subscribe(trackingId);
     }
 
-    @Operation(summary = "Get final calculation result for a tracking ID")
-    @GetMapping("/imports/{trackingId}/calculation")
-    public ResponseEntity<CalculationProgressEvent> getCalculationResult(@PathVariable String trackingId) {
-        return progressStore.getResult(trackingId)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Calculation result not found or still in progress: " + trackingId));
+    @Operation(summary = "Get full import result after calculation completes",
+               description = "Returns 404 while calculation is still in progress.")
+    @GetMapping("/imports/{trackingId}/summary")
+    public ImportResultResponse getCalculationResult(@PathVariable String trackingId) {
+        return orderService.getCalculationResult(trackingId);
     }
 
     @Operation(summary = "Download CSV error report for an import batch")
