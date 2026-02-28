@@ -32,7 +32,7 @@ export function NewOrderEntry() {
         <BackLink href="/orders">Back to Orders</BackLink>
       </div>
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 md:px-6 md:py-16">
-        {isMobile && (
+        {!isMobile && (
           <LightRays
             count={4}
             color="oklch(0.5393 0.2713 286.7462 / 0.20)"
