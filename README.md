@@ -46,46 +46,35 @@ We've made local setup as simple as possible using Docker.
 
 ### Prerequisites
 
-Ensure you have [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed on your machine.
-The application requires **PostgreSQL with the PostGIS extension**. You can either spin up a container using the command below or let `docker-compose` handle it automatically:
-
-```bash
-docker run -d \
-  --name taxengine-db \
-  -e POSTGRES_DB=taxengine \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -p 5432:5432 \
-  postgis/postgis:16-3.4
-```
+Ensure you have [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed.
 
 ### Quick Start
 
-1. **Set up Environment Variables:**
-   Create a `.env` file in the project directory:
+1. **Set up environment variables** — create a `.env` file in the project root:
 
    ```env
-   DB_URL=jdbc:postgresql://localhost:5432/taxengine?reWriteBatchedInserts=true
    DB_USERNAME=postgres
    DB_PASSWORD=postgres
    JWT_SECRET_KEY=5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
-   NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
-   NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_token
+   NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api/v1
+   NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_token_here
    APP_BASE_URL=http://localhost:8080
    ```
 
-2. **Run with Docker Compose:**
+2. **Start all services:**
 
    ```bash
    docker compose up --build
    ```
 
-3. **Access the Application:**
-   - **Backend API:** `http://localhost:8080`
-   - **Swagger UI (API Docs):** `http://localhost:8080/swagger-ui.html`
-   - **Frontend:** Make sure to check your client setup, typically running on `http://localhost:3000`.
+   Docker Compose starts three containers: **PostgreSQL + PostGIS** (port 5432), **backend** (port 8080), **frontend** (port 3000). The database includes a healthcheck — the backend waits for it before starting.
 
-> **Note:** On first startup, the application automatically runs Liquibase migrations, loads NY geographical boundaries, seeds tax rates, and inserts ~15,000 synthetic orders so you can immediately explore the data.
+3. **Access the application:**
+   - **Frontend:** `http://localhost:3000`
+   - **Backend API:** `http://localhost:8080`
+   - **Swagger UI:** `http://localhost:8080/swagger-ui.html`
+
+> **Note:** On first startup the app automatically runs Liquibase migrations, loads NY geo boundaries, seeds tax rates, and inserts ~15 000 synthetic orders so you can immediately explore the data.
 
 ---
 
