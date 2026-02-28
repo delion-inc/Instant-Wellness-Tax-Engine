@@ -1,46 +1,46 @@
-name: Deploy to EC2
+# name: Deploy to EC2
 
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
+# on:
+#   push:
+#     branches: [ "main" ]
+#   workflow_dispatch:
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      # (Optional) Add tests here later
+#       # (Optional) Add tests here later
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: ${{ secrets.EC2_PORT }}
-          script: |
-            set -e
+#       - name: Deploy via SSH
+#         uses: appleboy/ssh-action@v1.2.0
+#         with:
+#           host: ${{ secrets.EC2_HOST }}
+#           username: ${{ secrets.EC2_USER }}
+#           key: ${{ secrets.EC2_SSH_KEY }}
+#           port: ${{ secrets.EC2_PORT }}
+#           script: |
+#             set -e
 
-            cd ~/betterme-tax
+#             cd ~/betterme-tax
 
-            echo "== Pull latest code =="
-            git fetch --all
-            git reset --hard origin/main
+#             echo "== Pull latest code =="
+#             git fetch --all
+#             git reset --hard origin/main
 
-            echo "== Build and restart containers =="
-            docker compose down
-            docker compose up -d --build
+#             echo "== Build and restart containers =="
+#             docker compose down
+#             docker compose up -d --build
 
-            echo "== Containers status =="
-            docker compose ps
+#             echo "== Containers status =="
+#             docker compose ps
 
-            echo "== Health checks =="
-            curl -I http://localhost/ || exit 1
-            curl -I http://localhost/api/ || true
+#             echo "== Health checks =="
+#             curl -I http://localhost/ || exit 1
+#             curl -I http://localhost/api/ || true
 
-            echo "== Cleanup old images =="
-            docker image prune -f
+#             echo "== Cleanup old images =="
+#             docker image prune -f
