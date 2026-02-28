@@ -3,8 +3,12 @@
 > 🚀 **Live Demo:** [delion.digital](https://delion.digital)
 
 ## 🎥 Project Demo
-
-[![Watch the demo](https://img.youtube.com/vi/Hzc9RpnPe84/0.jpg)](https://www.youtube.com/watch?v=Hzc9RpnPe84)
+[[Watch the demo]](https://www.youtube.com/watch?v=Hzc9RpnPe84)
+<a href="https://www.youtube.com/watch?v=Hzc9RpnPe84" about="_blank">
+  <img width="1920" height="993"
+       alt="Watch the demo"
+       src="https://github.com/user-attachments/assets/4f5b2c21-2653-4929-b566-b466a5fa0959" />
+</a>
 
 ---
 
@@ -22,13 +26,17 @@
 
 ## 🖥️ User Interface
 
-_Placeholders for UI Screenshots/GIFs:_
+### Orders List Dashboard page
+<img width="1904" height="1075" alt="image" src="https://github.com/user-attachments/assets/c35559a5-d6a9-48a2-a27d-4936e1657570" />
 
-![Order List Dashboard (Placeholder)](https://via.placeholder.com/800x450.png?text=Dashboard+/+Order+List+UI)
-_Detailed grid view with calculated taxes, powerful filtering, and pagination._
 
-![CSV Import Flow (Placeholder)](https://via.placeholder.com/800x450.png?text=Bulk+CSV+Import+UI)
-_Real-time progress tracking for bulk CSV order imports._
+### CSV Import page
+<img width="1920" height="1079" alt="image" src="https://github.com/user-attachments/assets/61c12168-4893-4b44-bd56-ed528304f2fd" />
+
+
+### Manual Order Creation page
+<img width="1903" height="1077" alt="image" src="https://github.com/user-attachments/assets/fff79d23-06e4-4b52-99d2-853fe92a72d8" />
+
 
 ---
 
